@@ -7,6 +7,9 @@ RuleRefiner introduces a multi-stage LLM framework that eliminates false alarms 
 
 ---
 
+## Case Study
+We have placed a case study [here](./case_study.md).
+
 ## Environment Setup
 ### Prerequisites
 - Python 3.10+
