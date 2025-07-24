@@ -44,7 +44,7 @@ def chat2(prompt):
         stream=False,
         extra_body={"enable_thinking": False},
     )
-    return response.choices[0].message.content
+    return response.model_dump_json()
 
 def chat_raw(prompt):
     global TEMPERATURE

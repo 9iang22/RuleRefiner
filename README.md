@@ -213,28 +213,28 @@ python3 semgrep_pipeline.py --model deepseek-v3 --temperature 0.0 --k 1 --mode f
 # without template-constrained
 python3 semgrep_pipeline.py --model deepseek-v3 --temperature 0.0 --k 1 --mode localization
 # without differential-localization and template-constrained
-python3 semgrep_pipeline.py --model deepseek-v3 --temperature 0.0 --k 1 --mode simple
+python3 semgrep_pipeline.py --model deepseek-v3 --temperature 0.0 --k 1 --mode naive
 
 # full feature
 python3 semgrep_pipeline.py --model deepseek-v3 --temperature 1.0 --k 1 --mode full
 # without template-constrained
 python3 semgrep_pipeline.py --model deepseek-v3 --temperature 1.0 --k 1 --mode localization
 # without differential-localization and template-constrained
-python3 semgrep_pipeline.py --model deepseek-v3 --temperature 1.0 --k 1 --mode simple
+python3 semgrep_pipeline.py --model deepseek-v3 --temperature 1.0 --k 1 --mode naive
 
 # full feature
 python3 semgrep_pipeline.py --model qwen-plus --temperature 0.0 --k 1 --mode full
 # without template-constrained
 python3 semgrep_pipeline.py --model qwen-plus --temperature 0.0 --k 1 --mode localization
 # without differential-localization and template-constrained
-python3 semgrep_pipeline.py --model qwen-plus --temperature 0.0 --k 1 --mode simple
+python3 semgrep_pipeline.py --model qwen-plus --temperature 0.0 --k 1 --mode naive
 
 # full feature
 python3 semgrep_pipeline.py --model qwen-plus --temperature 1.0 --k 1 --mode full
 # without template-constrained
 python3 semgrep_pipeline.py --model qwen-plus --temperature 1.0 --k 1 --mode localization
 # without differential-localization and template-constrained
-python3 semgrep_pipeline.py --model qwen-plus --temperature 1.0 --k 1 --mode simple
+python3 semgrep_pipeline.py --model qwen-plus --temperature 1.0 --k 1 --mode naive
 ```
 
 ### RQ4: Generalization Capability Evaluation

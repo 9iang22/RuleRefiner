@@ -5,8 +5,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', stream=sys.stdout)
     # pipeline()
     data = [json.loads(line) for line in open("dataset/semgrep.jsonl").readlines()]
-    import random
-    d = random.choice(data)
+    d = data[0]
     example_set = prepare_data(d)
     prompts = prepare_prompts(d['rule'], example_set, "simple")
     assert prompts[0] is not None

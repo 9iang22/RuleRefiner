@@ -229,46 +229,49 @@ def pipeline(data, mode, prompt_file, result_file, verify_file):
         for r in results:
             o.write(json.dumps(r) + "\n")
 
-    
+ 
+if __name__ == "__main__":
+    import argparse
 
-import argparse
+    parser = argparse.ArgumentParser(description="Run the Semgrep pipeline.")
+    parser.add_argument('--mode', type=str, default='full', choices=['naive', 'cot', 'fewshot','localization', 'template', 'full'], help='Mode of the pipeline.')
+    parser.add_argument('--prompt_file', type=str, default='results/semgrep_prompts.jsonl', help='File to save prompts.')
+    parser.add_argument('--result_file', type=str, default='results/semgrep_result.jsonl', help='File to save results.')
+    parser.add_argument('--verify_file', type=str, default='results/semgrep_verify.jsonl', help='File to save verification results.')
+    parser.add_argument('--temperature', type=float, default=0.0, help='Temperature for the model.')
+    parser.add_argument('--model', type=str, default='deepseek-v3', choices=['deepseek-v3', 'qwen-plus'], help='Model to use for the pipeline.')
+    parser.add_argument('--k', type=int, default=1, help='pass@k.')
+    args = parser.parse_args()
 
-parser = argparse.ArgumentParser(description="Run the Semgrep pipeline.")
-parser.add_argument('--mode', type=str, default='full', choices=['naive', 'cot', 'fewshot','localization', 'template', 'full'], help='Mode of the pipeline.')
-parser.add_argument('--prompt_file', type=str, default='results/semgrep_prompts.jsonl', help='File to save prompts.')
-parser.add_argument('--result_file', type=str, default='results/semgrep_result.jsonl', help='File to save results.')
-parser.add_argument('--verify_file', type=str, default='results/semgrep_verify.jsonl', help='File to save verification results.')
-parser.add_argument('--temperature', type=float, default=0.0, help='Temperature for the model.')
-parser.add_argument('--model', type=str, default='deepseek-v3', choices=['deepseek-v3', 'qwen-plus'], help='Model to use for the pipeline.')
-parser.add_argument('--k', type=int, default=1, help='pass@k.')
-args = parser.parse_args()
+    if args.model == 'deepseek-v3':
+        from deepseek import chat_raw, chat2, set_temperature
+        set_temperature(args.temperature)
+    elif args.model == 'qwen-plus':
+        from qwen import chat_raw, chat2, set_temperature
+        set_temperature(args.temperature)
+    else:
+        raise ValueError(f"Unsupported model: {args.model}")
 
-if args.model == 'deepseek-v3':
-    from deepseek import chat_raw, chat2, set_temperature
-    set_temperature(args.temperature)
-elif args.model == 'qwen-plus':
-    from qwen import chat_raw, chat2, set_temperature
-    set_temperature(args.temperature)
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', stream=sys.stdout)
+
+    data = [json.loads(line) for line in open("dataset/semgrep.jsonl").readlines()][0:1]
+    for i in range(1, args.k+1):
+        pipeline(
+            data = data,
+            mode=args.mode,
+            prompt_file=f"{args.prompt_file}.{i}",
+            result_file=f"{args.result_file}.{i}",
+            verify_file=f"{args.verify_file}.{i}",
+        )
+    results = []
+    for i in range(1, args.k+1):
+        results += [json.loads(line) for line in open(f"{args.verify_file}.{i}").readlines()]
+    from scripts.semgrep_view_results import passk
+    success, failed = passk(results)
+    print(f"Pass@{args.k}: {len(success)} / {len(data)}")
+
 else:
-    raise ValueError(f"Unsupported model: {args.model}")
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', stream=sys.stdout)
-
-data = [json.loads(line) for line in open("dataset/semgrep.jsonl").readlines()]
-for i in range(1, args.k+1):
-    pipeline(
-        data = data,
-        mode=args.mode,
-        prompt_file=f"{args.prompt_file}.{i}",
-        result_file=f"{args.result_file}.{i}",
-        verify_file=f"{args.verify_file}.{i}",
-    )
-results = []
-for i in range(1, args.k+1):
-    results += [json.loads(line) for line in open(f"{args.verify_file}.{i}").readlines()]
-from scripts.semgrep_view_results import passk
-success, failed = passk(results)
-print(f"Pass@{args.k}: {len(success)} / {len(data)}")
+    from deepseek import chat_raw, chat2, set_temperature
             
 
         
