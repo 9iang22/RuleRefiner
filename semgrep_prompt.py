@@ -369,6 +369,37 @@ rules:
 </FINAL_ANSWER>
 """
 
+COT_FEW_SHOT_EXAMPLE_RESPONSE ="""
+<THOUGHTS>
+
+</THOUGHTS>
+<FINAL_ANSWER>
+```yaml
+rules:
+- id: useless-assignment
+  patterns:
+  - pattern-not: |
+      $X = $Y;
+      $X = $X.$METHOD(...);
+  - pattern-not: |
+      $X = $Y;
+      $X = $FUNC(..., <... $X ...>, ...);
+  - pattern-not: |
+      $X = $Y;
+      $X = $PREPEND + $X;
+  - pattern-not: |
+      $X = $Y;
+      $X = $X + $POSTPEND;
+  - pattern: |
+      $X = $Y;
+      $X = $Z;
+  message: '`$X` is assigned twice; the first assignment is useless'
+  languages: [javascript]
+  severity: WARNING
+```
+</FINAL_ANSWER>
+"""
+
 E="""
 // ok: useless-assignment
 c = j;
@@ -390,23 +421,37 @@ PROMPT_MISS_MATCH_FULL = TEMPLATE_MISS_MATCH_LOCALIZATION + "\n" + TEMPLATE_MISS
 def few_shot_example_prompt():
     return Template(PROMPT_NAIVE).render(rule=EXAMPLE_BE_RULE, e=E, typ="FP")
 
+def cot_few_shot_example_prompt():
+    return Template(PROMPT_SIMPLE).render(rule=EXAMPLE_BE_RULE, e=E, typ="FP")
+
 def few_shot_example_response():
     return FEW_SHOT_EXAMPLE_RESPONSE
 
-def few_shot_msg(prompt):
-    return [
-        {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": few_shot_example_prompt()},
-        {"role": "assistant", "content": few_shot_example_response()},
-        {"role": "user", "content": prompt}
-    ]
+def cot_few_shot_example_response():
+    return COT_FEW_SHOT_EXAMPLE_RESPONSE
+
+def few_shot_msg(prompt, with_cot=False):
+    if with_cot:
+        return [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": cot_few_shot_example_prompt()},
+            {"role": "assistant", "content": cot_few_shot_example_response()},
+            {"role": "user", "content": prompt}
+        ]
+    else:
+        return [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": few_shot_example_prompt()},
+            {"role": "assistant", "content": few_shot_example_response()},
+            {"role": "user", "content": prompt}
+        ]
 
 def gen_template_prompt(rule, e, s, ep_xpat, sp_xpat, typ, overmatch=True, mode='full'):
     if mode == "fewshot":
         return Template(PROMPT_NAIVE).render(rule=rule, e=e, typ=typ)
     if mode == "naive":
         return Template(PROMPT_NAIVE).render(rule=rule, e=e, typ=typ)
-    if mode == 'cot' or mode == "simple":
+    if mode == 'cot' or mode == "simple" or mode == 'cot-fewshot':
         return Template(PROMPT_SIMPLE).render(rule=rule, e=e, typ=typ)
     if mode == 'localization':
         if overmatch:

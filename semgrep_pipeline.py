@@ -34,7 +34,7 @@ def prepare_prompts(old_rule, example_set, mode):
     assert len(incorrects) == 1
     results = []
 
-    if mode == "simple" or mode == "naive" or mode == "cot" or mode == "fewshot":
+    if mode == "simple" or mode == "naive" or mode == "cot" or mode == "fewshot" or mode == "cot-fewshot":
         for incorrect in incorrects:
             typ = "false positive" if incorrect.is_fp() else "false negative"
             prompt = gen_template_prompt(old_rule, incorrect.content, None, None, None, typ, None, mode)
@@ -73,9 +73,12 @@ def query_all(data, mode='full'):
     from para import map_reduce
     def mapf(d):
         prompt = d['prompt']['prompt']
-        if mode == "fewshot":
+        if mode == "fewshot" or mode == "cot-fewshot":
             from semgrep_prompt import few_shot_msg
-            msg = few_shot_msg(prompt)
+            if mode == "cot-fewshot":
+                msg = few_shot_msg(prompt, True)
+            else:
+                msg = few_shot_msg(prompt, False)
             r = chat2(msg)
         else:
             r = chat_raw(prompt)
@@ -234,7 +237,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Run the Semgrep pipeline.")
-    parser.add_argument('--mode', type=str, default='full', choices=['naive', 'cot', 'fewshot','localization', 'template', 'full'], help='Mode of the pipeline.')
+    parser.add_argument('--mode', type=str, default='full', choices=['naive', 'cot', 'fewshot','cot-fewshot', 'localization', 'template', 'full'], help='Mode of the pipeline.')
     parser.add_argument('--prompt_file', type=str, default='results/semgrep_prompts.jsonl', help='File to save prompts.')
     parser.add_argument('--result_file', type=str, default='results/semgrep_result.jsonl', help='File to save results.')
     parser.add_argument('--verify_file', type=str, default='results/semgrep_verify.jsonl', help='File to save verification results.')
