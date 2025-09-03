@@ -18,7 +18,7 @@ def chat(prompt):
     client = OpenAI(api_key=os.getenv("DASHSCOPE_API_KEY"), base_url="https://dashscope.aliyuncs.com/compatible-mode/v1")
     response = client.chat.completions.create(
         #model candidate list: qwen-max , qwen-turbo ,qwen-plus
-        model="qwen-plus",  
+        model="Moonshot-Kimi-K2-Instruct",  
         messages=[
             {"role": "user", "content": prompt},
         ],
@@ -34,7 +34,7 @@ def chat2(prompt):
     client = OpenAI(api_key=os.getenv("DASHSCOPE_API_KEY"), base_url="https://dashscope.aliyuncs.com/compatible-mode/v1")
     response = client.chat.completions.create(
         #model candidate list: qwen-max , qwen-turbo ,qwen-plus
-        model="qwen-plus",  
+        model="Moonshot-Kimi-K2-Instruct",  
         # messages=[
         #     {"role": "system", "content": "You are an expert who are familar with static analysis tools --Semgrep."},
         #     {"role": "user", "content": prompt},
@@ -52,7 +52,7 @@ def chat_raw(prompt):
     client = OpenAI(api_key=os.getenv("DASHSCOPE_API_KEY"), base_url="https://dashscope.aliyuncs.com/compatible-mode/v1")
     response = client.chat.completions.create(
         #model candidate list: qwen-max , qwen-turbo ,qwen-plus
-        model="qwen-plus",  
+        model="Moonshot-Kimi-K2-Instruct",  
         messages=[
             {"role": "system", "content": "You are an expert who are familar with static analysis tools --Semgrep."},
             {"role": "user", "content": prompt},

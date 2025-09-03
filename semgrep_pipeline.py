@@ -239,7 +239,7 @@ if __name__ == "__main__":
     parser.add_argument('--result_file', type=str, default='results/semgrep_result.jsonl', help='File to save results.')
     parser.add_argument('--verify_file', type=str, default='results/semgrep_verify.jsonl', help='File to save verification results.')
     parser.add_argument('--temperature', type=float, default=0.0, help='Temperature for the model.')
-    parser.add_argument('--model', type=str, default='deepseek-v3', choices=['deepseek-v3', 'qwen-plus'], help='Model to use for the pipeline.')
+    parser.add_argument('--model', type=str, default='deepseek-v3', choices=['deepseek-v3', 'qwen-plus','gpt-4o-mini'], help='Model to use for the pipeline.')
     parser.add_argument('--k', type=int, default=1, help='pass@k.')
     args = parser.parse_args()
 
@@ -249,12 +249,15 @@ if __name__ == "__main__":
     elif args.model == 'qwen-plus':
         from qwen import chat_raw, chat2, set_temperature
         set_temperature(args.temperature)
+    elif args.model == 'gpt-4o-mini':
+        from gpt import chat_raw, chat2, set_temperature
+        set_temperature(args.temperature)
     else:
         raise ValueError(f"Unsupported model: {args.model}")
 
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', stream=sys.stdout)
 
-    data = [json.loads(line) for line in open("dataset/semgrep.jsonl").readlines()][0:1]
+    data = [json.loads(line) for line in open("dataset/semgrep.jsonl").readlines()]
     for i in range(1, args.k+1):
         pipeline(
             data = data,
